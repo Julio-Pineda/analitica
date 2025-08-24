@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💙Dashboard Analítico</title>
+    <title>💙Panel Analítico</title>
     
     <!-- Bootstrap 5 CSS y Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -13,44 +13,97 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
 
     <style>
+        /* --- Definición de Colores con Variables CSS --- */
+        :root {
+            --bg-color: #f4f7fc;
+            --text-color: #212529;
+            --card-bg-color: #ffffff;
+            --card-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            --text-muted-color: #6c757d;
+            --border-color: #dee2e6;
+            --striped-bg-color: rgba(0, 0, 0, 0.04);
+            --table-header-bg: #e9ecef;
+            --table-hover-bg: #dde2e7;
+        }
+
+        body.dark-mode {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --card-bg-color: #1e1e1e;
+            --card-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            --text-muted-color: #a0a0a0;
+            --border-color: #444;
+            --striped-bg-color: #2c2c2e; /* Color más oscuro para filas impares */
+            --table-header-bg: #2c3034;
+            --table-hover-bg: #3a3f44;
+        }
+        /* --- Fin de Variables --- */
+
         body {
-            background-color: #f4f7fc;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
         }
         .card {
-            border: none;
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--border-color);
             border-radius: 22px;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-            height: 100%; /* Permite que las tarjetas en la misma fila se alineen en altura */
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color 0.3s;
+            height: 100%;
+            box-shadow: var(--card-shadow);
         }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 10px 10px 23px 6px rgba(0, 0, 0, 0.496)!important;
-        }
+        .card:hover { transform: translateY(-5px); box-shadow: 10px 10px 23px 6px rgba(0, 0, 0, 0.496)!important; }
+        .card-body, .card-title { border-radius: 22px; color: var(--text-color); }
+        .text-muted { color: var(--text-muted-color) !important; }
+        .upload-card { border-style: dashed; border-color: #0d6efd; }
+        .plot-container { width: 100%; }
+        .kpi-card .card-body { display: flex; align-items: center; justify-content: center; }
+        .kpi-icon { font-size: 2.5rem; margin-right: 1.5rem; color: #0d6efd; }
+        .col-lg-6, .col-md-6, .col-md-4, .col-lg-3 { margin-bottom: 44px; }
 
-        .card-body{
-            border-radius: 22px;
-        }
+        /* --- ESTILOS ROBUSTOS Y DEFINITIVOS PARA DATATABLES --- */
+        
+        /* Estilos generales de la tabla (ambos modos) */
+        .table { --bs-table-color: var(--text-color); --bs-table-border-color: var(--border-color); }
+        .table thead th { background-color: var(--table-header-bg); }
+        .table-striped > tbody > tr:nth-of-type(odd) > * { --bs-table-accent-bg: var(--striped-bg-color); }
+        .table-hover > tbody > tr:hover > * { --bs-table-accent-bg: var(--table-hover-bg); cursor: pointer; }
 
-        .upload-card {
-             border-style: dashed;
-             border-color: #0d6efd;
+        /* MODO OSCURO: Anulaciones específicas */
+        .dark-mode .dataTables_wrapper,
+        .dark-mode .dataTables_length,
+        .dark-mode .dataTables_filter,
+        .dark-mode .dataTables_info {
+            color: var(--text-color);
         }
-        .plot-container {
-            width: 100%;
-            /* Se eliminó la altura mínima para que las tarjetas sean ceñidas */
+        
+        .dark-mode .table {
+            --bs-table-bg: var(--card-bg-color); /* Fondo base para filas pares */
+            --bs-table-striped-bg: var(--striped-bg-color); /* Fondo para filas impares */
+            --bs-table-striped-color: var(--text-color);
+            --bs-table-hover-bg: var(--table-hover-bg);
+            --bs-table-hover-color: var(--text-color);
         }
-        .kpi-card .card-body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        
+        /* Paginación en Modo Oscuro */
+        .dark-mode .page-item .page-link { background-color: #2a2a2a; border-color: var(--border-color); color: var(--text-muted-color); }
+        .dark-mode .page-item.disabled .page-link { background-color: var(--card-bg-color); border-color: var(--border-color); color: #666; }
+        .dark-mode .page-item.active .page-link { background-color: #0d6efd; border-color: #0d6efd; color: #fff; }
+        .dark-mode .page-item:not(.active) .page-link:hover { background-color: var(--table-hover-bg); }
+
+        /* Controles (Buscar, Mostrar entradas) en Modo Oscuro */
+        .dark-mode .dataTables_wrapper .form-control,
+        .dark-mode .dataTables_wrapper .form-select {
+            background-color: #333;
+            color: var(--text-color);
+            border-color: var(--border-color);
         }
-        .kpi-icon {
-            font-size: 2.5rem;
-            margin-right: 1.5rem;
-            color: #0d6efd;
-        }
-        .col-lg-6, .col-md-6, .col-md-4, .col-lg-3 {
-            margin-bottom: 44px;
+        .dark-mode .dataTables_wrapper .form-control:focus,
+        .dark-mode .dataTables_wrapper .form-select:focus {
+            background-color: #333;
+            color: var(--text-color);
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
         }
     </style>
 </head>
@@ -58,13 +111,19 @@
 
     <main class="container mt-4">
         <header class="text-center mb-5">
-            <h1 class="display-4">ESTADÍSTICAS</h1>
+            <div class="d-flex justify-content-center align-items-center position-relative">
+                <h1 class="display-4">ESTADÍSTICAS</h1>
+                <div class="form-check form-switch position-absolute" style="right: 0;">
+                    <input class="form-check-input" type="checkbox" id="theme-switcher">
+                    <label class="form-check-label" for="theme-switcher"><i class="bi bi-moon-stars-fill"></i></label>
+                </div>
+            </div>
             <p class="lead text-muted">💙Disfruta de una visualización agradable de los datos</p>
         </header>
 
         <section class="row mb-4">
             <div class="col-12">
-                <div class="card upload-card shadow-sm">
+                <div class="card upload-card">
                     <div class="card-body text-center p-4">
                         <h5 class="card-title">Cargar Datos</h5>
                         <p class="card-text">Selecciona uno o varios archivos .JSON para comenzar el análisis.</p>
@@ -77,9 +136,7 @@
             </div>
         </section>
 
-        <!-- El dashboard y sus filas se generarán dinámicamente aquí -->
-        <section id="dashboard-container">
-        </section>
+        <section id="dashboard-container"></section>
     </main>
 
     <!-- JS: Plotly, jQuery, Bootstrap, DataTables -->
@@ -92,18 +149,50 @@
     <script>
         // --- CONFIGURACIÓN GLOBAL ---
         const plotlyBaseLayout = { font: { family: 'Segoe UI, sans-serif', size: 12, color: '#333' }, paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: 'rgba(0,0,0,0)' };
+        const plotlyDarkLayout = { ...plotlyBaseLayout, template: 'plotly_dark', font: {...plotlyBaseLayout.font, color: '#e0e0e0'} };
         const dataTablesSpanish = { "sProcessing": "Procesando...", "sLengthMenu": "Mostrar _MENU_ registros", "sZeroRecords": "No se encontraron resultados", "sEmptyTable": "Ningún dato disponible en esta tabla", "sInfo": "Mostrando _START_ al _END_ de _TOTAL_ registros", "sInfoEmpty": "Mostrando 0 de 0 registros", "sInfoFiltered": "(filtrado de un total de _MAX_ registros)", "sSearch": "Buscar:", "oPaginate": { "sFirst": "Primero", "sLast": "Último", "sNext": "Siguiente", "sPrevious": "Anterior" } };
 
         // --- ELEMENTOS DEL DOM ---
         const jsonInput = document.getElementById('jsonInput');
         const dashboardContainer = document.getElementById('dashboard-container');
         const loader = document.getElementById('loader');
+        const themeSwitcher = document.getElementById('theme-switcher');
+        const body = document.body;
 
-        // --- LÓGICA PRINCIPAL ---
-        function showInitialState() {
-            dashboardContainer.innerHTML = `<div class="row g-4"><div class="col-12"><div class="card text-center bg-light"><div class="card-body p-5"><i class="bi bi-bar-chart-line" style="font-size: 3rem; color: #6c757d;"></i><h5 class="card-title mt-3">Esperando datos</h5><p class="card-text">Tus visualizaciones aparecerán aquí una vez que cargues los archivos.</p></div></div></div></div>`;
+        // --- LÓGICA DE TEMA (MODO OSCURO) ---
+        function applyTheme(theme) {
+            body.classList.toggle('dark-mode', theme === 'dark');
+            themeSwitcher.checked = (theme === 'dark');
+            updateChartsTheme();
         }
-        showInitialState();
+
+        function updateChartsTheme() {
+            const isDark = body.classList.contains('dark-mode');
+            const layoutUpdate = isDark ? plotlyDarkLayout : plotlyBaseLayout;
+            
+            dashboardContainer.querySelectorAll('.plot-container').forEach(container => {
+                if (container.id && Plotly.Plots.getPlot(container.id)) {
+                     Plotly.relayout(container.id, layoutUpdate);
+                }
+            });
+        }
+
+        themeSwitcher.addEventListener('change', () => {
+            const theme = themeSwitcher.checked ? 'dark' : 'light';
+            localStorage.setItem('theme', theme);
+            applyTheme(theme);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            applyTheme(savedTheme);
+            showInitialState();
+        });
+
+        // --- LÓGICA PRINCIPAL DEL DASHBOARD ---
+        function showInitialState() {
+            dashboardContainer.innerHTML = `<div class="row g-4"><div class="col-12"><div class="card text-center"><div class="card-body p-5"><i class="bi bi-bar-chart-line" style="font-size: 3rem; color: #6c757d;"></i><h5 class="card-title mt-3">Esperando datos</h5><p class="card-text">Tus visualizaciones aparecerán aquí una vez que cargues los archivos.</p></div></div></div></div>`;
+        }
 
         jsonInput.addEventListener('change', function(event) {
             const files = event.target.files;
@@ -117,33 +206,26 @@
                 reader.readAsText(file);
             }));
             Promise.all(filePromises)
-                .then(results => { renderDashboard([].concat.apply([], results)); })
+                .then(results => renderDashboard([].concat.apply([], results)))
                 .catch(error => { alert(error); showInitialState(); })
                 .finally(() => { loader.classList.add('d-none'); jsonInput.disabled = false; });
         });
 
         function renderDashboard(data) {
-            dashboardContainer.innerHTML = ''; // Limpiar todo el contenedor
+            dashboardContainer.innerHTML = '';
             
-            // Crear filas dedicadas para cada sección del dashboard
             const kpiRow = createRow(dashboardContainer);
             const donutRow1 = createRow(dashboardContainer);
-            const donutRow2 = createRow(dashboardContainer); // Nueva fila para los gráficos de referidos
+            const donutRow2 = createRow(dashboardContainer);
             const barRow1 = createRow(dashboardContainer);
             const barRow2 = createRow(dashboardContainer);
             const fullTableRow = createRow(dashboardContainer);
 
-            // Poblar las filas
             const iglesias = groupBy(data, 'Iglesia');
             const categorias = groupBy(data, 'categoria');
             const totalReferidos = data.reduce((acc, curr) => acc + (parseInt(curr["Número de referidos"], 10) || 0), 0);
             
-            renderSummaryCards({ 
-                totalPersonas: data.length, 
-                totalCategorias: Object.keys(categorias).length, 
-                totalIglesias: Object.keys(iglesias).length,
-                totalReferidos: totalReferidos 
-            }, kpiRow);
+            renderSummaryCards({ totalPersonas: data.length, totalCategorias: Object.keys(categorias).length, totalIglesias: Object.keys(iglesias).length, totalReferidos: totalReferidos }, kpiRow);
             
             const suscritos = data.filter(p => p["Suscrito a InfoMIRA"] === "Suscrito ✅").length;
             createDonutChart('Estado de Suscripción', ['Suscritos ✅', 'No Suscritos'], [suscritos, data.length - suscritos], 'col-md-6', donutRow1);
@@ -151,167 +233,79 @@
             const lideresActivos = data.filter(p => p["Es Líder"] === "Sí, Activo ✅").length;
             createDonutChart('Estado de Liderazgo', ['Líderes Activos ✅', 'No Líderes'], [lideresActivos, data.length - lideresActivos], 'col-md-6', donutRow1);
             
-            // --- NUEVOS GRÁFICOS ---
             const esReferidoCount = data.filter(p => p["Es Referido"] === "Sí, Activo ✅").length;
             createDonutChart('Contraste de Referidos (Personas)', ['Es Referido', 'No es Referido'], [esReferidoCount, data.length - esReferidoCount], 'col-md-6', donutRow2);
 
             const referidosActivos = data.reduce((acc, curr) => acc + (parseInt(curr["Número de referidos activos"], 10) || 0), 0);
             const referidosInactivos = totalReferidos - referidosActivos;
             createDonutChart('Estado de Referidos (Activos vs. Inactivos)', ['Referidos Activos', 'Referidos Inactivos'], [referidosActivos, referidosInactivos], 'col-md-6', donutRow2);
-            // --- FIN DE NUEVOS GRÁFICOS ---
 
             createBarChartAndTable('Distribución por Categoría', 'categoria', categorias, 'col-lg-6', barRow1);
             createBarChartAndTable('Distribución por Iglesia', 'Iglesia', iglesias, 'col-lg-6', barRow1);
-            
             createBarChartAndTable('Distribución por Puesto de Votación', 'Puesto de votación', groupBy(data, 'Puesto de votación'), 'col-lg-12', barRow2);
-            
             createFullDataTable(data, 'col-12', fullTableRow);
         }
         
         // --- FUNCIONES DE CREACIÓN DE COMPONENTES ---
-
         function renderSummaryCards(stats, parentElement) {
-            parentElement.innerHTML = `
-                <div class="col-lg-3 col-md-6 mb-2">
-                    <div class="card shadow-sm kpi-card">
-                        <div class="card-body">
-                            <i class="bi bi-person-plus-fill kpi-icon"></i>
-                            <div>
-                                <h5>Total Referidos</h5>
-                                <h3 class="fw-bold">${stats.totalReferidos}</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-2">
-                    <div class="card shadow-sm kpi-card">
-                        <div class="card-body">
-                            <i class="bi bi-people-fill kpi-icon"></i>
-                            <div>
-                                <h5>Total Personas</h5>
-                                <h3 class="fw-bold">${stats.totalPersonas}</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-2">
-                    <div class="card shadow-sm kpi-card">
-                        <div class="card-body">
-                            <i class="bi bi-tags-fill kpi-icon"></i>
-                            <div>
-                                <h5>Total Categorías</h5>
-                                <h3 class="fw-bold">${stats.totalCategorias}</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-2">
-                    <div class="card shadow-sm kpi-card">
-                        <div class="card-body">
-                            <i class="bi bi-bank kpi-icon"></i>
-                            <div>
-                                <h5>Total Iglesias</h5>
-                                <h3 class="fw-bold">${stats.totalIglesias}</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>`;
+            parentElement.innerHTML = `<div class="col-lg-3 col-md-6 mb-2"><div class="card kpi-card"><div class="card-body"><i class="bi bi-person-plus-fill kpi-icon"></i><div><h5>Total Referidos</h5><h3 class="fw-bold">${stats.totalReferidos}</h3></div></div></div></div><div class="col-lg-3 col-md-6 mb-2"><div class="card kpi-card"><div class="card-body"><i class="bi bi-people-fill kpi-icon"></i><div><h5>Total Personas</h5><h3 class="fw-bold">${stats.totalPersonas}</h3></div></div></div></div><div class="col-lg-3 col-md-6 mb-2"><div class="card kpi-card"><div class="card-body"><i class="bi bi-tags-fill kpi-icon"></i><div><h5>Total Categorías</h5><h3 class="fw-bold">${stats.totalCategorias}</h3></div></div></div></div><div class="col-lg-3 col-md-6 mb-2"><div class="card kpi-card"><div class="card-body"><i class="bi bi-bank kpi-icon"></i><div><h5>Total Iglesias</h5><h3 class="fw-bold">${stats.totalIglesias}</h3></div></div></div></div>`;
         }
 
-
         function createDonutChart(title, labels, values, colClass, parentElement) {
-            const { cardBody } = createCardCol(colClass, title, parentElement);
-            const plotContainer = document.createElement('div');
-            plotContainer.className = 'plot-container';
-            cardBody.appendChild(plotContainer);
-            const plotData = [{ values, labels, type: 'pie', hole: .4, hoverinfo: 'label+percent', textinfo: 'value', marker: { colors: ['#0d6efd', '#adb5bd'] } }];
-            const layout = { ...plotlyBaseLayout, showlegend: true, legend: { x: 0.5, xanchor: 'center', y: -0.2, orientation: 'h' }, margin: { l: 20, r: 20, b: 60, t: 60 } };
+            const { plotContainer } = createCardCol(colClass, title, parentElement);
+            const plotData = [{ values, labels, type: 'pie', hole: .4, hoverinfo: 'label+percent', textinfo: 'value', marker: { colors: ['#0d6efd', '#6c757d'] } }];
+            const baseLayout = body.classList.contains('dark-mode') ? plotlyDarkLayout : plotlyBaseLayout;
+            const layout = { ...baseLayout, showlegend: true, legend: { x: 0.5, xanchor: 'center', y: -0.2, orientation: 'h' }, margin: { l: 20, r: 20, b: 60, t: 60 } };
             Plotly.newPlot(plotContainer, plotData, layout, { responsive: true });
         }
 
         function createBarChartAndTable(title, keyName, groupedData, colClass, parentElement) {
-            const { cardBody } = createCardCol(colClass, title, parentElement);
-
-            const plotContainer = document.createElement('div');
-            plotContainer.className = 'plot-container';
+            const { cardBody, plotContainer } = createCardCol(colClass, title, parentElement, true);
             const tableContainer = document.createElement('div');
             tableContainer.className = 'table-responsive mt-3';
-            cardBody.appendChild(plotContainer);
             cardBody.appendChild(tableContainer);
-
             const names = Object.keys(groupedData);
             const counts = names.map(name => groupedData[name].length);
-            const min = Math.min(...counts), max = Math.max(...counts);
-            const colors = counts.map(val => getColorForValue(val, min, max));
-            const hoverText = names.map((name, i) => `${keyName}: ${name}<br>Cantidad: ${counts[i]}`);
-            const plotData = [{ x: names, y: counts, type: 'bar', marker: { color: colors }, hoverinfo: 'text', hovertext: hoverText }];
-            const layout = { ...plotlyBaseLayout, yaxis: { title: 'Cantidad', automargin: true }, margin: { l: 60, r: 20, b: 80, t: 40 } };
+            const plotData = [{ x: names, y: counts, type: 'bar', marker: { color: getColorForValue(counts) }, hoverinfo: 'text', hovertext: names.map((name, i) => `${keyName}: ${name}<br>Cantidad: ${counts[i]}`) }];
+            const baseLayout = body.classList.contains('dark-mode') ? plotlyDarkLayout : plotlyBaseLayout;
+            const layout = { ...baseLayout, yaxis: { title: 'Cantidad', automargin: true }, margin: { l: 60, r: 20, b: 80, t: 40 } };
             Plotly.newPlot(plotContainer, plotData, layout, { responsive: true });
-            
             const tableId = `table-${keyName.replace(/[^a-zA-Z0-9]/g, '')}`;
-            tableContainer.innerHTML = `<table id="${tableId}" class="table table-striped table-bordered" style="width:100%"><thead><tr><th>${keyName}</th><th>Personas</th></tr></thead></table>`;
-            const tableData = names.map((name, index) => [name, counts[index]]);
-            new DataTable(`#${tableId}`, { data: tableData, language: dataTablesSpanish });
+            tableContainer.innerHTML = `<table id="${tableId}" class="table table-striped table-bordered table-hover" style="width:100%"><thead><tr><th>${keyName}</th><th>Personas</th></tr></thead></table>`;
+            new DataTable(`#${tableId}`, { data: names.map((name, index) => [name, counts[index]]), language: dataTablesSpanish });
         }
 
         function createFullDataTable(fullData, colClass, parentElement) {
             if (!fullData || fullData.length === 0) return;
-            const { cardBody } = createCardCol(colClass, 'Tabla de Datos Completa', parentElement);
+            const { cardBody } = createCardCol(colClass, 'Tabla de Datos Completa', parentElement, false);
             const headers = Object.keys(fullData[0]);
-            let headerHtml = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
-            cardBody.innerHTML = `<div class="table-responsive"><table id="fullDataTable" class="table table-striped table-bordered" style="width:100%"><thead>${headerHtml}</thead></table></div>`;
-            const tableData = fullData.map(item => headers.map(header => item[header] || '-'));
-            new DataTable('#fullDataTable', { data: tableData, language: dataTablesSpanish, scrollX: true });
+            cardBody.innerHTML = `<div class="table-responsive"><table id="fullDataTable" class="table table-striped table-bordered table-hover" style="width:100%"><thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead></table></div>`;
+            new DataTable('#fullDataTable', { data: fullData.map(item => headers.map(header => item[header] || '-')), language: dataTablesSpanish, scrollX: true });
         }
         
         // --- FUNCIONES DE UTILIDAD ---
-        function createRow(container) {
-            const row = document.createElement('div');
-            row.className = 'row g-4';
-            container.appendChild(row);
-            return row;
+        function createRow(container) { const row = document.createElement('div'); row.className = 'row g-4'; container.appendChild(row); return row; }
+        function createCardCol(colClass, title, parentElement, includePlotContainer = true) {
+            const col = document.createElement('div'); col.className = colClass;
+            const card = document.createElement('div'); card.className = 'card';
+            const cardBody = document.createElement('div'); cardBody.className = 'card-body p-4';
+            if (title) { const titleEl = document.createElement('h5'); titleEl.className = 'card-title text-center mb-3'; titleEl.textContent = title; cardBody.appendChild(titleEl); }
+            let plotContainer = null;
+            if (includePlotContainer) { plotContainer = document.createElement('div'); plotContainer.className = 'plot-container'; plotContainer.id = 'plot-' + Math.random().toString(36).substr(2, 9); cardBody.appendChild(plotContainer); }
+            card.appendChild(cardBody); col.appendChild(card); parentElement.appendChild(col);
+            return { cardBody, plotContainer };
         }
-
-        function createCardCol(colClass, title, parentElement) {
-            const col = document.createElement('div');
-            col.className = colClass;
-            const card = document.createElement('div');
-            card.className = 'card shadow-sm';
-            const cardBody = document.createElement('div');
-            cardBody.className = 'card-body';
-            if (title) {
-                const titleEl = document.createElement('h5');
-                titleEl.className = 'card-title text-center';
-                titleEl.textContent = title;
-                cardBody.appendChild(titleEl);
-            }
-            card.appendChild(cardBody);
-            col.appendChild(card);
-            parentElement.appendChild(col);
-            return { cardBody };
-        }
-
-        function groupBy(array, key) {
-            return array.reduce((result, currentValue) => {
-                const groupKey = currentValue[key] || "No definido";
-                (result[groupKey] = result[groupKey] || []).push(currentValue);
-                return result;
-            }, {});
-        }
-
-        function getColorForValue(value, min, max) {
-            if (min === max) return 'rgb(13, 110, 253)';
-            const percent = (max - min) === 0 ? 1 : (value - min) / (max - min);
-            const red = [220, 53, 69], yellow = [255, 193, 7], blue = [13, 110, 253];
-            let r, g, b;
-            if (percent < 0.5) {
-                const localPercent = percent * 2;
-                r = Math.round(red[0] + localPercent * (yellow[0] - red[0])); g = Math.round(red[1] + localPercent * (yellow[1] - red[1])); b = Math.round(red[2] + localPercent * (yellow[2] - red[2]));
-            } else {
-                const localPercent = (percent - 0.5) * 2;
-                r = Math.round(yellow[0] + localPercent * (blue[0] - yellow[0])); g = Math.round(yellow[1] + localPercent * (blue[1] - yellow[1])); b = Math.round(yellow[2] + localPercent * (blue[2] - yellow[2]));
-            }
-            return `rgb(${r},${g},${b})`;
+        function groupBy(array, key) { return array.reduce((result, currentValue) => { const groupKey = currentValue[key] || "No definido"; (result[groupKey] = result[groupKey] || []).push(currentValue); return result; }, {}); }
+        function getColorForValue(values) {
+            const min = Math.min(...values), max = Math.max(...values);
+            if (min === max) return values.map(() => 'rgb(13, 110, 253)');
+            return values.map(val => {
+                const percent = (max - min) === 0 ? 1 : (val - min) / (max - min);
+                const blue = [13, 110, 253], yellow = [255, 193, 7], red = [220, 53, 69]; let r, g, b;
+                if (percent < 0.5) { const localPercent = percent * 2; r = Math.round(red[0] + localPercent * (yellow[0] - red[0])); g = Math.round(red[1] + localPercent * (yellow[1] - red[1])); b = Math.round(red[2] + localPercent * (yellow[2] - red[2]));
+                } else { const localPercent = (percent - 0.5) * 2; r = Math.round(yellow[0] + localPercent * (blue[0] - yellow[0])); g = Math.round(yellow[1] + localPercent * (blue[1] - yellow[1])); b = Math.round(yellow[2] + localPercent * (blue[2] - yellow[2])); }
+                return `rgb(${r},${g},${b})`;
+            });
         }
     </script>
 </body>
