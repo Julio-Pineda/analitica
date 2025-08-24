@@ -49,7 +49,7 @@
             margin-right: 1.5rem;
             color: #0d6efd;
         }
-        .col-lg-6, .col-md-6, .col-md-4 {
+        .col-lg-6, .col-md-6, .col-md-4, .col-lg-3 {
             margin-bottom: 44px;
         }
     </style>
@@ -127,7 +127,8 @@
             
             // Crear filas dedicadas para cada sección del dashboard
             const kpiRow = createRow(dashboardContainer);
-            const donutRow = createRow(dashboardContainer);
+            const donutRow1 = createRow(dashboardContainer);
+            const donutRow2 = createRow(dashboardContainer); // Nueva fila para los gráficos de referidos
             const barRow1 = createRow(dashboardContainer);
             const barRow2 = createRow(dashboardContainer);
             const fullTableRow = createRow(dashboardContainer);
@@ -135,14 +136,30 @@
             // Poblar las filas
             const iglesias = groupBy(data, 'Iglesia');
             const categorias = groupBy(data, 'categoria');
-            renderSummaryCards({ totalPersonas: data.length, totalCategorias: Object.keys(categorias).length, totalIglesias: Object.keys(iglesias).length }, kpiRow);
+            const totalReferidos = data.reduce((acc, curr) => acc + (parseInt(curr["Número de referidos"], 10) || 0), 0);
+            
+            renderSummaryCards({ 
+                totalPersonas: data.length, 
+                totalCategorias: Object.keys(categorias).length, 
+                totalIglesias: Object.keys(iglesias).length,
+                totalReferidos: totalReferidos 
+            }, kpiRow);
             
             const suscritos = data.filter(p => p["Suscrito a InfoMIRA"] === "Suscrito ✅").length;
-            createDonutChart('Estado de Suscripción', ['Suscritos ✅', 'No Suscritos'], [suscritos, data.length - suscritos], 'col-md-6', donutRow);
+            createDonutChart('Estado de Suscripción', ['Suscritos ✅', 'No Suscritos'], [suscritos, data.length - suscritos], 'col-md-6', donutRow1);
             
             const lideresActivos = data.filter(p => p["Es Líder"] === "Sí, Activo ✅").length;
-            createDonutChart('Estado de Liderazgo', ['Líderes Activos ✅', 'No Líderes'], [lideresActivos, data.length - lideresActivos], 'col-md-6', donutRow);
+            createDonutChart('Estado de Liderazgo', ['Líderes Activos ✅', 'No Líderes'], [lideresActivos, data.length - lideresActivos], 'col-md-6', donutRow1);
             
+            // --- NUEVOS GRÁFICOS ---
+            const esReferidoCount = data.filter(p => p["Es Referido"] === "Sí, Activo ✅").length;
+            createDonutChart('Contraste de Referidos (Personas)', ['Es Referido', 'No es Referido'], [esReferidoCount, data.length - esReferidoCount], 'col-md-6', donutRow2);
+
+            const referidosActivos = data.reduce((acc, curr) => acc + (parseInt(curr["Número de referidos activos"], 10) || 0), 0);
+            const referidosInactivos = totalReferidos - referidosActivos;
+            createDonutChart('Estado de Referidos (Activos vs. Inactivos)', ['Referidos Activos', 'Referidos Inactivos'], [referidosActivos, referidosInactivos], 'col-md-6', donutRow2);
+            // --- FIN DE NUEVOS GRÁFICOS ---
+
             createBarChartAndTable('Distribución por Categoría', 'categoria', categorias, 'col-lg-6', barRow1);
             createBarChartAndTable('Distribución por Iglesia', 'Iglesia', iglesias, 'col-lg-6', barRow1);
             
@@ -154,8 +171,53 @@
         // --- FUNCIONES DE CREACIÓN DE COMPONENTES ---
 
         function renderSummaryCards(stats, parentElement) {
-            parentElement.innerHTML = `<div class="col-md-4 mb-2"><div class="card shadow-sm kpi-card"><div class="card-body"><i class="bi bi-people-fill kpi-icon"></i><div><h5>Total Personas</h5><h3 class="fw-bold">${stats.totalPersonas}</h3></div></div></div></div><div class="col-md-4"><div class="card shadow-sm kpi-card"><div class="card-body"><i class="bi bi-tags-fill kpi-icon"></i><div><h5>Total Categorías</h5><h3 class="fw-bold">${stats.totalCategorias}</h3></div></div></div></div><div class="col-md-4"><div class="card shadow-sm kpi-card"><div class="card-body"><i class="bi bi-bank kpi-icon"></i><div><h5>Total Iglesias</h5><h3 class="fw-bold">${stats.totalIglesias}</h3></div></div></div></div>`;
+            parentElement.innerHTML = `
+                <div class="col-lg-3 col-md-6 mb-2">
+                    <div class="card shadow-sm kpi-card">
+                        <div class="card-body">
+                            <i class="bi bi-person-plus-fill kpi-icon"></i>
+                            <div>
+                                <h5>Total Referidos</h5>
+                                <h3 class="fw-bold">${stats.totalReferidos}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-2">
+                    <div class="card shadow-sm kpi-card">
+                        <div class="card-body">
+                            <i class="bi bi-people-fill kpi-icon"></i>
+                            <div>
+                                <h5>Total Personas</h5>
+                                <h3 class="fw-bold">${stats.totalPersonas}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-2">
+                    <div class="card shadow-sm kpi-card">
+                        <div class="card-body">
+                            <i class="bi bi-tags-fill kpi-icon"></i>
+                            <div>
+                                <h5>Total Categorías</h5>
+                                <h3 class="fw-bold">${stats.totalCategorias}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6 mb-2">
+                    <div class="card shadow-sm kpi-card">
+                        <div class="card-body">
+                            <i class="bi bi-bank kpi-icon"></i>
+                            <div>
+                                <h5>Total Iglesias</h5>
+                                <h3 class="fw-bold">${stats.totalIglesias}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
         }
+
 
         function createDonutChart(title, labels, values, colClass, parentElement) {
             const { cardBody } = createCardCol(colClass, title, parentElement);
